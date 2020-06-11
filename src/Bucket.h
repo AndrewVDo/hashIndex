@@ -1,21 +1,24 @@
+#include <memory>
+#include <string>
+
 class Bucket {
     private:
-        unique_ptr<int []> data;
+        std::unique_ptr<int []> data;
         int localDepth;
+        int occupancy;
+        int capacity;
+
+        void setData(int index, int value);
+        void incrementOccupancy();
+        void decrementOccupancy();
 
     public:
         /**
-            Creates an empty bucket with a capacity for 4 keys.
-            @return a new instance of a bucket.
-        */
-        Bucket();
-
-        /**
-            Creates an empty bucket with specified capacity
+            Creates an empty bucket with specified capacity and depth (determines how many hash-bits are used).
             @param capacity - the fixed size of the bucket
             @return a new instance of a bucket.
         */
-        Bucket(int capacity);
+        Bucket(int capacity, int localDepth);
 
         /**
             Destructor
@@ -33,7 +36,7 @@ class Bucket {
             Inserts a new key, if the bucket has reached capacity, it will warn the hash
             table through the return value.
             @param hashedKey - new hashed key to be inserted.
-            @return bool - success/failure dependent on capacity of the bucket.
+            @return int - returns -1 on failure, index if found.
         */
         bool insert(int hashedKey);
 
@@ -45,7 +48,8 @@ class Bucket {
         bool remove(int hashedKey);
 
         /**
-            Prints the contents of the bucket and it's local depth.
+            formatted string with contents of bucket and localDepth
+            @return string - [<hash1>, <hash2>, -, -, ..., -] (<localDepth>)
         */
-        void print();
-}
+        std::string print();
+};
