@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <string>
+#include <cmath>
 
 using namespace std;
 
@@ -18,13 +19,16 @@ Bucket::Bucket(int capacity, int localDepth) {
     this->data = unique_ptr<int []>(new int[capacity]());
     this->occupancy = 0;
     this->capacity = capacity;
+    this->recentlyPrinted = false;
 };
 
-int Bucket::find(int hashedKey) {
-    int* dataArray = this->data.get();
+Bucket::~Bucket() {
+    
+}
 
+int Bucket::find(int hashedKey) {
     for(int i=0; i<this->occupancy; i++) {
-        if(dataArray[i] == hashedKey) {
+        if(this->data[i] == hashedKey) {
             return i;
         }
     }
@@ -45,16 +49,15 @@ bool Bucket::insert(int hashedKey) {
 
 void Bucket::setData(int index, int value) {
     if(index >= this->occupancy || index < 0) {
-        throw invalid_argument("setData: invalid index, did you incrementOccupancy?");
+        throw runtime_error("setData: invalid index, did you incrementOccupancy?");
     }
 
-    int* dataArray = this->data.get();
-    dataArray[index] = value;
+    this->data[index] = value;
 }
 
 void Bucket::incrementOccupancy() {
     if(this->occupancy == this->capacity) {
-        throw range_error("incrementOccupancy: bucket full");
+        throw runtime_error("incrementOccupancy: bucket full");
     }
 
     this->occupancy += 1;
@@ -78,8 +81,7 @@ bool Bucket::remove(int hashedKey) {
         this->decrementOccupancy();
     }
     else {
-        int* dataArray = this->data.get();
-        int lastValue = dataArray[occupancy-1];
+        int lastValue = this->data[occupancy-1];
         this->setData(keyLocation, lastValue);
         this->decrementOccupancy();
     }
@@ -88,13 +90,15 @@ bool Bucket::remove(int hashedKey) {
 }
 
 string Bucket::print() {
+    if(recentlyPrinted == true) {
+        return "";
+    }
     stringstream output;
     
-    int* dataArray = this->data.get();
     string bucketContents = "[";
     for(int i=0; i<this->capacity; i++) {
         if(i < this->occupancy) {
-            bucketContents += to_string(dataArray[i]) + ",";
+            bucketContents += to_string(this->data[i]) + ",";
         }
         else {
             bucketContents += "-,";
@@ -104,5 +108,41 @@ string Bucket::print() {
     output << bucketContents;
     output << "(" << to_string(this->localDepth) << ")";
 
+    this->recentlyPrinted = true;
     return output.str();
+}
+
+void Bucket::resetPrintStatus() {
+    this->recentlyPrinted = false;
+}
+
+shared_ptr<Bucket> Bucket::splitBucket(int naughtKeyPattern, int oneKeyPattern, int(*maskBits)(int, int)) {
+    if(this->occupancy != this->capacity) {
+        throw runtime_error("splitBucket: trying to split a bucket that is not full");
+    }
+    if(naughtKeyPattern + pow(2, this->localDepth) != oneKeyPattern) {
+        throw invalid_argument("splitBucket: split paramaters are wrong");
+    }
+
+    int newLocalDepth = this->localDepth + 1;
+    this->localDepth = newLocalDepth;
+    shared_ptr<Bucket> newBucket = shared_ptr<Bucket>(new Bucket(this->capacity, newLocalDepth));
+
+    for(int i=this->occupancy-1; i>=0; i--) {
+        int keyPattern = maskBits(this->data[i], newLocalDepth);
+
+        if(keyPattern == oneKeyPattern) {
+            newBucket->insert(this->data[i]);
+            this->remove(this->data[i]);
+        }
+        else if(keyPattern != naughtKeyPattern) {
+            throw runtime_error("splitBucket: contents not consistent");
+        }
+    }
+
+    return newBucket;
+}
+
+int Bucket::getLocalDepth() {
+    return this->localDepth;
 }

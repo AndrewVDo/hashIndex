@@ -1,8 +1,9 @@
+#include "Bucket.h"
 #include <memory>
 
 class ExtensibleHashTable {
     private:
-        std::unique_ptr<Bucket[]> directory;
+        std::unique_ptr< std::shared_ptr<Bucket> []> directory;
         int globalDepth;
 
         /**
@@ -10,9 +11,16 @@ class ExtensibleHashTable {
             If there are 2^i total buckets where i represents the global depth
             than only the right i bits of the hash are used.
             @param key - the key to be hashed
-            @return the hash value
+            @return int - the hash value
         */
-        void hash(int key);
+        //int hash(int key);
+
+        /**
+            Splits a bucket, returning a new bucket with containi
+        */
+        void splitBucket(int bucketIndex);
+
+        void incrementGlobalDepth();
 
     public:
         /**
@@ -61,4 +69,12 @@ class ExtensibleHashTable {
             @return void
         */
         void print();
-}
+
+        /**
+            Returns only the right-most bits, all other bits set to 0
+            @param hashedKey - a key that has been hashed
+            @param numBits - number of bits considered
+            @return int - in which only right numBits are let through
+        */
+        static int maskBits(int hashedKey, int numBits);
+};

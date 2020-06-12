@@ -7,6 +7,7 @@ class Bucket {
         int localDepth;
         int occupancy;
         int capacity;
+        bool recentlyPrinted;
 
         void setData(int index, int value);
         void incrementOccupancy();
@@ -52,4 +53,20 @@ class Bucket {
             @return string - [<hash1>, <hash2>, -, -, ..., -] (<localDepth>)
         */
         std::string print();
+
+        /**
+            splits the bucket into an into 2 buckets, the if localDepth is i bits
+            than the existing bucket will contain ...0<old localDepth bits> keys and
+            the new bucket will return ...1<old localDepth bits> keys
+            @param maskBits function from an ExtensibleHashTable class
+            @return Bucket* - the new instance containing ...1<old localDepth bits> keys
+        */
+        std::shared_ptr<Bucket> splitBucket(int naughtKeyPattern, int oneKeyPattern, int(*maskBits)(int, int));
+
+        /**
+            returns local depth
+        */
+        int getLocalDepth();
+
+        void resetPrintStatus();
 };
