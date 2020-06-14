@@ -5,20 +5,20 @@ using namespace std;
 
 int main() {
     ExtensibleHashTable* hTable = new ExtensibleHashTable(3);
-    // hTable->insert(1);
+    hTable->insert(1);
+    hTable->insert(2);
+    hTable->insert(3);
+    hTable->insert(4);
+    hTable->insert(5);
+    hTable->insert(6);
+    hTable->insert(7);
+    hTable->insert(8);
+    hTable->insert(9);
+    hTable->insert(2);
+    hTable->insert(2);
     // hTable->insert(2);
-    // hTable->insert(3);
-    // hTable->insert(4);
-    // hTable->insert(5);
-    // hTable->insert(6);
-    // hTable->insert(7);
-    // hTable->insert(8);
-    // hTable->insert(9);
+    hTable->insert(10);
     // hTable->insert(2);
-    // hTable->insert(2);
-    // hTable->insert(2);
-    // hTable->insert(10);
-    //hTable->insert(2);
 
     hTable->insert(64);
     hTable->insert(200);
@@ -29,6 +29,7 @@ int main() {
     hTable->insert(13);
     hTable->insert(253);
     hTable->insert(109);
+    //hTable->remove(2);
     hTable->print();
 
     cout << "success" << endl;

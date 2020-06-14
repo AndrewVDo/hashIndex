@@ -48,6 +48,7 @@ void ExtensibleHashTable::insert(int key) {
         shared_ptr<Bucket> targetBucket = this->directory[shallowTargetIndex];
         int deepTargetIndex = maskBits(key, targetBucket->getLocalDepth());
         bool result = targetBucket->insert(key);
+        //cout << "result " << result << " deepTargetIndex " << deepTargetIndex << endl;
 
         if(result == false) {
             numTries--;
@@ -78,6 +79,15 @@ void ExtensibleHashTable::splitBucket(int bucketIndex) {
         this->incrementGlobalDepth();
     }
     this->directory[newBucketIndex] = newBucket;
+
+    //update all descending directories
+    int numDirectories = pow(2, this->globalDepth);
+    for(int i=newBucketIndex+1; i<numDirectories; i++) {
+        int testMaskBits = maskBits(i, oldLocalDepth+1);
+        if(testMaskBits == newBucketIndex) {
+            this->directory[i] = newBucket;
+        }
+    }
 }
 
 int ExtensibleHashTable::maskBits(int hashedKey, int numBits) {
@@ -111,7 +121,12 @@ void ExtensibleHashTable::incrementGlobalDepth() {
 }
 
 bool ExtensibleHashTable::remove(int key) {
-    return false; //consider duplicates
+    int targetBucketIndex = this->maskBits(key, this->globalDepth);
+
+    bool result = true;
+    while(result == true) {
+        result = this->directory[targetBucketIndex]->remove(key);
+    }
 }
 
 void ExtensibleHashTable::print() {

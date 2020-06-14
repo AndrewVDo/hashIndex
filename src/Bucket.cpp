@@ -37,7 +37,7 @@ int Bucket::find(int hashedKey) {
 }
 
 bool Bucket::insert(int hashedKey) {
-    if(occupancy == capacity) {
+    if(this->occupancy == this->capacity) {
         return false;
     }
 
