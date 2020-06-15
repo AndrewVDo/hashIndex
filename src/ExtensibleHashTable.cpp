@@ -15,12 +15,36 @@ ExtensibleHashTable::ExtensibleHashTable(int keysPerBucket) {
 }
 
 void ExtensibleHashTable::initialize(int keysPerBucket) {
+    this->keysPerBucket     =   keysPerBucket;
     this->globalDepth       =   1;
     this->numDirectories    =   pow(2, this->globalDepth);
     this->directory         =   unique_ptr< shared_ptr<Bucket> []>(new shared_ptr<Bucket> [2]);
 
     for(int i=0; i<2; i++) {
         this->directory[i]  =   shared_ptr<Bucket>(new Bucket(keysPerBucket, 1));
+    }
+}
+
+ExtensibleHashTable::ExtensibleHashTable(const ExtensibleHashTable &copy) {
+    int keysPerBucket = copy.keysPerBucket;
+    this->initialize(copy.keysPerBucket);
+    while(this->globalDepth != copy.globalDepth) {
+        this->incrementGlobalDepth();
+    }
+
+    for(int i=0; i<copy.numDirectories; i++) {
+        shared_ptr<Bucket> existingBucket   =   copy.directory[i];
+
+        for(int j=1; j<=copy.globalDepth; j++) {
+            int parentIndex                 =   maskBits(i, j);
+            shared_ptr<Bucket> bucketParent =   copy.directory[parentIndex];
+
+            if(bucketParent == existingBucket) {
+                this->directory[i]          =   this->directory[parentIndex];
+                break;
+            }
+        }
+        this->directory[i]                  =   shared_ptr<Bucket>(new Bucket(*(existingBucket.get())));
     }
 }
 
@@ -136,6 +160,9 @@ bool ExtensibleHashTable::remove(int key) {
 }
 
 void ExtensibleHashTable::print() {
+    //remove this
+    cout << this->directory.get() << endl;
+
     for(int i=0; i<this->numDirectories; i++) {
         cout << i << ": " << this->directory[i].get() << " --> " << this->directory[i]->print() << endl;
     }

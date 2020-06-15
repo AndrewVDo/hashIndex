@@ -7,6 +7,7 @@ class ExtensibleHashTable {
         std::unique_ptr< std::shared_ptr<Bucket> []> directory;
         int globalDepth;
         int numDirectories;
+        int keysPerBucket;
 
         /**
             Initializes 2 empty buckets and sets the global depth to 1.
@@ -51,6 +52,8 @@ class ExtensibleHashTable {
             @return a new ExtensibleHashTable instance.
         */
         ExtensibleHashTable(int keysPerBucket);
+
+        ExtensibleHashTable(const ExtensibleHashTable &copy);
 
         /**
             Destructor

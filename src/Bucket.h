@@ -22,6 +22,8 @@ class Bucket {
         */
         Bucket(int capacity, int localDepth);
 
+        Bucket(const Bucket &copy);
+
         /**
             Destructor
         */

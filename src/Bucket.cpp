@@ -20,7 +20,19 @@ Bucket::Bucket(int capacity, int localDepth) {
     this->occupancy = 0;
     this->capacity = capacity;
     this->recentlyPrinted = false;
-};
+}
+
+Bucket::Bucket(const Bucket &copy) {
+    this->localDepth = copy.localDepth;
+    this->data = unique_ptr<int []>(new int[copy.capacity]());
+    this->occupancy = 0;
+    this->capacity = copy.capacity;
+    this->recentlyPrinted = false;
+
+    for(int i=0; i<copy.occupancy; i++) {
+        this->insert(copy.data[i]);
+    }
+}
 
 Bucket::~Bucket() {
     
@@ -93,6 +105,7 @@ string Bucket::print() {
     if(recentlyPrinted == true) {
         return "";
     }
+    recentlyPrinted = true;
     stringstream output;
     
     string bucketContents = "[";

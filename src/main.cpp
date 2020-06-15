@@ -121,34 +121,33 @@ void deleteTest(int keysPerBucket, int numRuns) {
     cout << __func__ << ": Success" << endl;
 }
 
-int main() {
-    ExtensibleHashTable* hTable = new ExtensibleHashTable(3);
-    hTable->insert(1);
-    hTable->insert(2);
-    hTable->insert(3);
-    hTable->insert(4);
-    hTable->insert(5);
-    hTable->insert(6);
-    hTable->insert(7);
-    hTable->insert(8);
-    hTable->insert(9);
-    hTable->insert(2);
-    hTable->insert(2);
-    // hTable->insert(2);
-    hTable->insert(10);
-    // hTable->insert(2);
+void copyTest(int numRuns) {
+    ExtensibleHashTable* hTable = new ExtensibleHashTable();
+    for(int i=0; i<numRuns; i++) {
+        hTable->insert(i);
+    }
+    for(int i=0; i<numRuns; i++) {
+        bool result = hTable->find(i);
 
-    hTable->insert(64);
-    hTable->insert(200);
-    hTable->insert(153);
-    hTable->insert(66);
-    hTable->insert(218);
-    hTable->insert(67);
-    hTable->insert(13);
-    hTable->insert(253);
-    hTable->insert(109);
-    hTable->remove(2);
+        if(result == false) {
+            hTable->print();
+            throw runtime_error("Could Not find " + to_string(i));
+        }
+    }
+
+    ExtensibleHashTable* hTable2 = new ExtensibleHashTable(*hTable);
+
+    for(int i=0; i<numRuns; i++) {
+        hTable->remove(i);
+    }
+
     hTable->print();
+    hTable2->print();
+    cout << __func__ << ": Success" << endl;
+}
+
+int main() {
+    copyTest(1000);
 
     return 0;
 }
