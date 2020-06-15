@@ -44,7 +44,7 @@ ExtensibleHashTable::ExtensibleHashTable(const ExtensibleHashTable &copy) {
                 break;
             }
         }
-        this->directory[i]                  =   shared_ptr<Bucket>(new Bucket(*(existingBucket.get())));
+        this->directory[i]                  =   shared_ptr<Bucket>(new Bucket(*existingBucket));
     }
 }
 
