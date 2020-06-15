@@ -160,9 +160,6 @@ bool ExtensibleHashTable::remove(int key) {
 }
 
 void ExtensibleHashTable::print() {
-    //remove this
-    cout << this->directory.get() << endl;
-
     for(int i=0; i<this->numDirectories; i++) {
         cout << i << ": " << this->directory[i].get() << " --> " << this->directory[i]->print() << endl;
     }
