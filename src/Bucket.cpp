@@ -108,7 +108,6 @@ string Bucket::print() {
     output << bucketContents;
     output << "(" << to_string(this->localDepth) << ")";
 
-    this->recentlyPrinted = true;
     return output.str();
 }
 
@@ -133,7 +132,11 @@ shared_ptr<Bucket> Bucket::splitBucket(int naughtKeyPattern, int oneKeyPattern, 
 
         if(keyPattern == oneKeyPattern) {
             newBucket->insert(this->data[i]);
-            this->remove(this->data[i]);
+            bool result = this->removeByIndex(i);
+
+            if(result == false) {
+                throw runtime_error("splitBucket: failed to removeByIndex");
+            }
         }
         else if(keyPattern != naughtKeyPattern) {
             throw runtime_error("splitBucket: contents not consistent");
@@ -141,6 +144,23 @@ shared_ptr<Bucket> Bucket::splitBucket(int naughtKeyPattern, int oneKeyPattern, 
     }
 
     return newBucket;
+}
+
+bool Bucket::removeByIndex(int index) {
+    if(index < 0 || index >= this->occupancy) {
+        return false;
+    }
+
+    if(this->occupancy-1 == index) {
+        this->decrementOccupancy();
+    }
+    else {
+        int lastValue = this->data[occupancy-1];
+        this->setData(index, lastValue);
+        this->decrementOccupancy();
+    }
+
+    return true;
 }
 
 int Bucket::getLocalDepth() {

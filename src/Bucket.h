@@ -12,6 +12,7 @@ class Bucket {
         void setData(int index, int value);
         void incrementOccupancy();
         void decrementOccupancy();
+        bool removeByIndex(int index);
 
     public:
         /**

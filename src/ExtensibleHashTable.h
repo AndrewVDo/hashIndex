@@ -1,26 +1,40 @@
 #include "Bucket.h"
 #include <memory>
+#include <fstream>
 
 class ExtensibleHashTable {
     private:
         std::unique_ptr< std::shared_ptr<Bucket> []> directory;
         int globalDepth;
+        int numDirectories;
 
         /**
-            Hash function used for indexing. k -> H(k).
-            If there are 2^i total buckets where i represents the global depth
-            than only the right i bits of the hash are used.
-            @param key - the key to be hashed
-            @return int - the hash value
+            Initializes 2 empty buckets and sets the global depth to 1.
+            @param keyPerBucket - size of each bucket.
         */
-        //int hash(int key);
+        void initialize(int keysPerBucket);
 
         /**
-            Splits a bucket, returning a new bucket with containi
+            Splits a bucket, the bucket at bucketIndex will be split into 2 buckets;
+            ...0<oldBucketIndex> & ...1<oldBucketIndex>. This function has the potential
+            to call incrementGlobalDepth() if the localDepth is the same as the globalDepth.
+            @param bucketIndex - hash-value/directory-index to be split.
         */
         void splitBucket(int bucketIndex);
 
+        /**
+            Increments globalDepth and expands the directory to account for the change. Does
+            not create any new buckets but wires new directories to existing buckets.
+        */
         void incrementGlobalDepth();
+
+        /**
+            In response to bucket splitting, directory that are dependent on the bucket being split
+            will be redirected to either the new bucket or old bucket.
+            @param newBucketIndex - the bucket that was recently created.
+            @param oldLocalDepth - the localDepth of the bucket pre-split.
+        */
+        void updateDirectory(int newBucketIndex, int oldLocalDepth);
 
     public:
         /**
@@ -69,6 +83,7 @@ class ExtensibleHashTable {
             @return void
         */
         void print();
+        void print(std::ofstream& outFile);
 
         /**
             Returns only the right-most bits, all other bits set to 0
